@@ -13,97 +13,97 @@ import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
 
 /*
- * ³×Æ®¿öÅ© »óÅÂ¸¦ º¸±â À§ÇÑ Å¬·¡½º
+ *ë„¤íŠ¸ì›Œí¬ ìƒíƒœë¥¼ ë³´ê¸° ìœ„í•œ í´ë˜ìŠ¤
  */
 
 public class NetworkMonitor {
-	private Map<String, Long> rxCurrentMap; // ¹ŞÀº ³×Æ®¿öÅ© ÇöÀç »óÅÂ¸¦ ÀúÀåÇÏ±â À§ÇÑ ¸Ê
-	private Map<String, List<Long>> rxChangeMap; // ¹ŞÀº ³×Æ®¿öÅ© ¿¹Àü »óÅÂ¸¦ ÀúÀåÇÑ ¸Ê
-	private Map<String, Long> txCurrentMap; // º¸³»´Â ³×Æ®¿öÅ© ÇöÀç »óÅÂ¸¦ ÀúÀåÇÏ±â À§ÇÑ ¸Ê
-	private Map<String, List<Long>> txChangeMap; // º¸³»´Â ³×Æ®¿öÅ© ¿¹Àü »óÅÂ¸¦ ÀúÀåÇÑ ¸Ê
-	private Sigar sigar;
+    private Map<String, Long> rxCurrentMap; //ë°›ì€ ë„¤íŠ¸ì›Œí¬ í˜„ì¬ ìƒíƒœë¥¼ ì €ì¥í•˜ê¸° ìœ„í•œ ë§µ
+    private Map<String, List<Long>> rxChangeMap; //ë°›ì€ ë„¤íŠ¸ì›Œí¬ ì˜ˆì „ ìƒíƒœë¥¼ ì €ì¥í•œ ë§µ
+    private Map<String, Long> txCurrentMap; //ë³´ë‚´ëŠ” ë„¤íŠ¸ì›Œí¬ í˜„ì¬ ìƒíƒœë¥¼ ì €ì¥í•˜ê¸° ìœ„í•œ ë§µ
+    private Map<String, List<Long>> txChangeMap; //ë³´ë‚´ëŠ” ë„¤íŠ¸ì›Œí¬ ì˜ˆì „ ìƒíƒœë¥¼ ì €ì¥í•œ ë§µ
+    private Sigar sigar;
 
-	public NetworkMonitor(Sigar sigar) {
-		this.sigar = sigar;
-		this.rxCurrentMap = new HashMap<String, Long>();
-		this.rxChangeMap = new HashMap<String, List<Long>>();
-		this.txCurrentMap = new HashMap<String, Long>();
-		this.txChangeMap = new HashMap<String, List<Long>>();
-	}
+    public NetworkMonitor(Sigar sigar) {
+        this.sigar = sigar;
+        this.rxCurrentMap = new HashMap<String, Long>();
+        this.rxChangeMap = new HashMap<String, List<Long>>();
+        this.txCurrentMap = new HashMap<String, Long>();
+        this.txChangeMap = new HashMap<String, List<Long>>();
+    }
 
-	public Long[] getMetric() throws SigarException {
-		String[] networkInterfaceArray = sigar.getNetInterfaceList();
-		String networkInterface;
-		for (int i = 0; i < networkInterfaceArray.length; i++) {
-			networkInterface = networkInterfaceArray[i];
-			NetInterfaceStat netStat = sigar.getNetInterfaceStat(networkInterface);
-			NetInterfaceConfig ifConfig = sigar.getNetInterfaceConfig(networkInterface);
-			String hwaddr = null; // hardware address¸¦ ¶æÇÔ (=MAC address)
-			if (!NetFlags.NULL_HWADDR.equals(ifConfig.getHwaddr())) {
-				hwaddr = ifConfig.getHwaddr();
-			}
-			if (hwaddr != null) {
-				long rxCurrenttmp = netStat.getRxBytes();
-				saveChange(rxCurrentMap, rxChangeMap, hwaddr, rxCurrenttmp, networkInterface);
-				long txCurrenttmp = netStat.getTxBytes();
-				saveChange(txCurrentMap, txChangeMap, hwaddr, txCurrenttmp, networkInterface);
-			}
-		}
-		long totalrx = getMetricData(rxChangeMap);
-		long totaltx = getMetricData(txChangeMap);
-		for (List<Long> l : rxChangeMap.values())
-			l.clear();
-		for (List<Long> l : txChangeMap.values())
-			l.clear();
-		return new Long[] { totalrx, totaltx };
-	}
+    public Long[] getMetric() throws SigarException {
+        String[] networkInterfaceArray = sigar.getNetInterfaceList();
+        String networkInterface;
+        for (int i = 0; i < networkInterfaceArray.length; i++) {
+            networkInterface = networkInterfaceArray[i];
+            NetInterfaceStat netStat = sigar.getNetInterfaceStat(networkInterface);
+            NetInterfaceConfig ifConfig = sigar.getNetInterfaceConfig(networkInterface);
+            String hwaddr = null; //hardware addressë¥¼ ëœ»í•¨ (=MAC address)
+            if (!NetFlags.NULL_HWADDR.equals(ifConfig.getHwaddr())) {
+                hwaddr = ifConfig.getHwaddr();
+            }
+            if (hwaddr != null) {
+                long rxCurrenttmp = netStat.getRxBytes();
+                saveChange(rxCurrentMap, rxChangeMap, hwaddr, rxCurrenttmp, networkInterface);
+                long txCurrenttmp = netStat.getTxBytes();
+                saveChange(txCurrentMap, txChangeMap, hwaddr, txCurrenttmp, networkInterface);
+            }
+        }
+        long totalrx = getMetricData(rxChangeMap);
+        long totaltx = getMetricData(txChangeMap);
+        for (List<Long> l : rxChangeMap.values())
+            l.clear();
+        for (List<Long> l : txChangeMap.values())
+            l.clear();
+        return new Long[] { totalrx, totaltx };
+    }
 
-	// ¸ğµç ³×Æ®¿öÅ© º¯È­¸¦ Æò±ÕÀ¸·Î ¸¸µå´Â ¸Ş¼Òµå
-	private long getMetricData(Map<String, List<Long>> rxChangeMap) {
-		long total = 0;
-		for (Entry<String, List<Long>> entry : rxChangeMap.entrySet()) {
-			int average = 0;
-			for (Long l : entry.getValue()) {
-				average += l;
-			}
-			total += average / entry.getValue().size();
-		}
-		return total;
-	}
+    //ëª¨ë“  ë„¤íŠ¸ì›Œí¬ ë³€í™”ë¥¼ í‰ê· ìœ¼ë¡œ ë§Œë“œëŠ” ë©”ì†Œë“œ
+    private long getMetricData(Map<String, List<Long>> rxChangeMap) {
+        long total = 0;
+        for (Entry<String, List<Long>> entry : rxChangeMap.entrySet()) {
+            int average = 0;
+            for (Long l : entry.getValue()) {
+                average += l;
+            }
+            total += average / entry.getValue().size();
+        }
+        return total;
+    }
 
-	// ³×Æ®¿öÅ© ÀÎÅÍÆäÀÌ½º ¸¶´ÙÀÇ º¯È­À²À» ÀúÀåÇÏ±â À§ÇÑ ¸Ş¼Òµå
-	private void saveChange(Map<String, Long> currentMap, Map<String, List<Long>> changeMap, String hwaddr,
-			long current, String ni) {
-		Long oldCurrent = currentMap.get(ni);
-		if (oldCurrent != null) {
-			List<Long> list = changeMap.get(hwaddr);
-			if (list == null) {
-				list = new LinkedList<Long>();
-				changeMap.put(hwaddr, list);
-			}
-			list.add((current - oldCurrent));
-		}
-		currentMap.put(ni, current);
-	}
+    //ë„¤íŠ¸ì›Œí¬ ì¸í„°í˜ì´ìŠ¤ ë§ˆë‹¤ì˜ ë³€í™”ìœ¨ì„ ì €ì¥í•˜ê¸° ìœ„í•œ ë©”ì†Œë“œ
+    private void saveChange(Map<String, Long> currentMap, Map<String, List<Long>> changeMap, String hwaddr,
+            long current, String ni) {
+        Long oldCurrent = currentMap.get(ni);
+        if (oldCurrent != null) {
+            List<Long> list = changeMap.get(hwaddr);
+            if (list == null) {
+                list = new LinkedList<Long>();
+                changeMap.put(hwaddr, list);
+            }
+            list.add((current - oldCurrent));
+        }
+        currentMap.put(ni, current);
+    }
 
-	public void showNetwork() {
-		Long[] m = null;
-		try {
-			m = getMetric();
-		} catch (SigarException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Network SigarException");
-			e.printStackTrace();
-		}
-		long totalrx = m[0]; // Byte´ÜÀ§
-		long totaltx = m[1]; // Byte´ÜÀ§	
-		System.out.println("------------------NetWork-----------------");
-		System.out.print("totalrx(download): ");
-		System.out.print("\t" + Sigar.formatSize(totalrx));
-		System.out.println("\t" + totalrx);
-		System.out.print("totaltx(upload): ");
-		System.out.print("\t" + Sigar.formatSize(totaltx));
-		System.out.println("\t" + totaltx);
-		System.out.println("------------------------------------------");
-	}
+    public void showNetwork() {
+        Long[] m = null;
+        try {
+            m = getMetric();
+        } catch (SigarException e) {
+            // TODO Auto-generated catch block
+            System.out.println("Network SigarException");
+            e.printStackTrace();
+        }
+        long totalrx = m[0]; //Byteë‹¨ìœ„
+        long totaltx = m[1]; //Byteë‹¨ìœ„
+        System.out.println("------------------NetWork-----------------");
+        System.out.print("totalrx(download): ");
+        System.out.print("\t" + Sigar.formatSize(totalrx));
+        System.out.println("\t" + totalrx);
+        System.out.print("totaltx(upload): ");
+        System.out.print("\t" + Sigar.formatSize(totaltx));
+        System.out.println("\t" + totaltx);
+        System.out.println("------------------------------------------");
+    }
 }

@@ -1,31 +1,31 @@
 package com.crinity.cmbeat.memory;
 
 /*
- *	µğ½ºÅ© Á¤º¸¸¦ ´ã´Â Å¬·¡½º 
+ *	ë””ìŠ¤í¬ ì •ë³´ë¥¼ ë‹´ëŠ” í´ë˜ìŠ¤
  */
 public class DiskInfoDao {
-	String fileSystemDir;
-	double usedPercent; // ¹éºĞÀ²ÀÌ ¾Æ´Ñ ±×³É ¼Ò¼öÀÓ ex)0.7612345
-	double freePercent; // ¹éºĞÀ²ÀÌ ¾Æ´Ñ ±×³É ¼Ò¼öÀÓ ex)0.7612345
+    String fileSystemDir;
+    double usedPercent; // ë°±ë¶„ìœ¨ì´ ì•„ë‹Œ ê·¸ëƒ¥ ì†Œìˆ˜ ex)0.7612345
+    double freePercent; // ë°±ë¶„ìœ¨ì´ ì•„ë‹Œ ê·¸ëƒ¥ ì†Œìˆ˜ ex)0.7612345
 
-	public String getFileSystemDir() {
-		return fileSystemDir;
-	}
+    public String getFileSystemDir() {
+        return fileSystemDir;
+    }
 
-	public void setFileSystemDir(String fileSystemDir) {
-		this.fileSystemDir = fileSystemDir;
-	}
+    public void setFileSystemDir(String fileSystemDir) {
+        this.fileSystemDir = fileSystemDir;
+    }
 
-	public double getUsedPercent() {
-		return usedPercent;
-	}
+    public double getUsedPercent() {
+        return usedPercent;
+    }
 
-	public void setUsedPercent(double usedPercent) {
-		this.usedPercent = usedPercent;
-	}
+    public void setUsedPercent(double usedPercent) {
+        this.usedPercent = usedPercent;
+    }
 
-	public double getFreePercent() {
-		return (double) 1 - usedPercent;
-	}
+    public double getFreePercent() {
+        return (double) 1 - usedPercent;
+    }
 
 }

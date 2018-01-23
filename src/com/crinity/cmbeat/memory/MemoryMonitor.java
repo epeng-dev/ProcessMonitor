@@ -9,73 +9,73 @@ import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
 
 /*
- *	∏ﬁ∏∏Æ(Ram, Hdd)¿« ¡§∫∏∏¶ ∫∏¥¬ ≈¨∑°Ω∫ 
+ *	Î©îÎ™®Î¶¨(Ram, Hdd)Ïùò Ï†ïÎ≥¥Î•º Ï†úÍ≥µÌïòÎäî ÌÅ¥ÎûòÏä§
  */
 
 public class MemoryMonitor {
-	private Sigar sigar;
+    private Sigar sigar;
 
-	public MemoryMonitor(Sigar sigar) {
-		this.sigar = sigar;
-	}
+    public MemoryMonitor(Sigar sigar) {
+        this.sigar = sigar;
+    }
 
-	private double[] getRamMemory() throws SigarException {
-		Mem mem = sigar.getMem();
-		double[] mems = new double[2];
+    private double[] getRamMemory() throws SigarException {
+        Mem mem = sigar.getMem();
+        double[] mems = new double[2];
 
-		mems[0] = mem.getUsedPercent();
-		mems[1] = mem.getFreePercent();
+        mems[0] = mem.getUsedPercent();
+        mems[1] = mem.getFreePercent();
 
-		return mems;
-	}
+        return mems;
+    }
 
-	private ArrayList<DiskInfoDao> getHddMemory() throws SigarException {
-		FileSystem[] fsList = sigar.getFileSystemList();
-		ArrayList<DiskInfoDao> fsUsageList = new ArrayList<DiskInfoDao>();
+    private ArrayList<DiskInfoDao> getHddMemory() throws SigarException {
+        FileSystem[] fsList = sigar.getFileSystemList();
+        ArrayList<DiskInfoDao> fsUsageList = new ArrayList<DiskInfoDao>();
 
-		for (int i = 0; i < fsList.length; i++) {
-			FileSystem fs = fsList[i];
-			String fsDir = fs.getDirName();
-			FileSystemUsage usage = sigar.getFileSystemUsage(fsDir);
+        for (int i = 0; i < fsList.length; i++) {
+            FileSystem fs = fsList[i];
+            String fsDir = fs.getDirName();
+            FileSystemUsage usage = sigar.getFileSystemUsage(fsDir);
 
-			DiskInfoDao diskInfoDao = new DiskInfoDao();
-			diskInfoDao.setFileSystemDir(fsDir);
-			diskInfoDao.setUsedPercent(usage.getUsePercent());
+            DiskInfoDao diskInfoDao = new DiskInfoDao();
+            diskInfoDao.setFileSystemDir(fsDir);
+            diskInfoDao.setUsedPercent(usage.getUsePercent());
 
-			fsUsageList.add(diskInfoDao);
-		}
+            fsUsageList.add(diskInfoDao);
+        }
 
-		return fsUsageList;
-	}
+        return fsUsageList;
+    }
 
-	public void showMemory() {
-		double[] ramMems; // [0]π¯ø°¥¬ ªÁøÎ«— ∏ﬁ∏∏Æ¿« πÈ∫–¿≤(º“ºˆ) [1]π¯ø°¥¬ ≥≤¿∫ øÎ∑Æ ∏ﬁ∏∏Æ¿« πÈ∫–¿≤(º“ºˆ)
-		try {
-			ramMems = getRamMemory();
-		} catch (SigarException e1) {
-			System.out.println("Ram Sigar Exception!");
-			return;
-		}
-		System.out.println("---------------------RAM------------------");
-		System.out.println("ªÁøÎ∑Æ: " + ramMems[0]);
-		System.out.println("≥≤¿∫ øÎ∑Æ: " + ramMems[1]);
-		System.out.println("------------------------------------------");
+    public void showMemory() {
+        double[] ramMems; //[0]Î≤àÏóêÎäî ÏÇ¨Ïö©Ìïú Î©îÎ™®Î¶¨Ïùò Î∞±Î∂ÑÏú®(ÏÜåÏàò) [1]Î≤àÏóêÎäî ÎÇ®ÏùÄ Ïö©Îüâ Î©îÎ™®Î¶¨Ïùò Î∞±Î∂ÑÏú®(ÏÜåÏàò)
+        try {
+            ramMems = getRamMemory();
+        } catch (SigarException e1) {
+            System.out.println("Ram Sigar Exception!");
+            return;
+        }
+        System.out.println("---------------------RAM------------------");
+        System.out.println("Used: " + ramMems[0]);
+        System.out.println("Free: " + ramMems[1]);
+        System.out.println("------------------------------------------");
 
-		ArrayList<DiskInfoDao> hddMems;
-		try {
-			hddMems = getHddMemory();
-		} catch (SigarException e) {
-			System.out.println("Hdd Sigar Exception!");
-			return;
-		}
+        ArrayList<DiskInfoDao> hddMems;
+        try {
+            hddMems = getHddMemory();
+        } catch (SigarException e) {
+            System.out.println("Hdd Sigar Exception!");
+            return;
+        }
 
-		System.out.println("---------------------HDD------------------");
-		for (int i = 0; i < hddMems.size(); i++) {
-			DiskInfoDao diskInfo = hddMems.get(i);
-			System.out.println(diskInfo.getFileSystemDir());
-			System.out.println("ªÁøÎ∑Æ: " + diskInfo.getUsedPercent());
-			System.out.println("≥≤¿∫ øÎ∑Æ: " + diskInfo.getFreePercent());
-		}
-		System.out.println("------------------------------------------");
-	}
+        System.out.println("---------------------HDD------------------");
+        for (int i = 0; i < hddMems.size(); i++) {
+            DiskInfoDao diskInfo = hddMems.get(i);
+            System.out.println(diskInfo.getFileSystemDir());
+            System.out.println("Used: " + diskInfo.getUsedPercent());
+            System.out.println("Free: " + diskInfo.getFreePercent());
+        }
+        System.out.println("------------------------------------------");
+    }
 }
