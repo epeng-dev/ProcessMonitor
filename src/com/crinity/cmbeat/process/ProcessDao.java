@@ -1,23 +1,14 @@
 package com.crinity.cmbeat.process;
 
-import java.util.ArrayList;
-
 public class ProcessDao {
     private int pid;
     private String user;
-    private ArrayList<Double> cpuUsage;
-    private double memoryUsage;
+    private float cpuUsage;
+    private float ramUsage;
+    private String command;
 
     public ProcessDao() {
-        cpuUsage = new ArrayList<Double>();
-    }
 
-    public double getMemoryUsage() {
-        return memoryUsage;
-    }
-
-    public void setMemoryUsage(double memoryUsage) {
-        this.memoryUsage = memoryUsage;
     }
 
     public int getPid() {
@@ -36,8 +27,28 @@ public class ProcessDao {
         this.user = user;
     }
 
-    public ArrayList<Double> getCpuUsage() {
+    public float getCpuUsage() {
         return cpuUsage;
+    }
+
+    public void setCpuUsage(float cpuUsage) {
+        this.cpuUsage = cpuUsage;
+    }
+
+    public float getRamUsage() {
+        return ramUsage;
+    }
+
+    public void setRamUsage(float ramUsage) {
+        this.ramUsage = ramUsage;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
     }
 
 }
