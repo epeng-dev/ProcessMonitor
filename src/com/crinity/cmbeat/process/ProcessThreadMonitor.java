@@ -14,12 +14,11 @@ import com.crinity.cmbeat.monitor.Monitor;
  * 프로세스 Thread 상태를 보여주는 클래스
  */
 public class ProcessThreadMonitor implements Monitor {
-    private BufferedWriter out = null;
-    private String filename = null;
+    private BufferedWriter out;
+    private String filename;
 
     // 일반적인 시작, CSV 파일 생성
     public ProcessThreadMonitor(String filename) {
-
         this.filename = "./log/processthread/" + filename + ".csv";
         prepareCSV();
     }
@@ -33,15 +32,14 @@ public class ProcessThreadMonitor implements Monitor {
         float ram = 0.0f;
         String user = null;
         String comm = null;
-
         String line;
         ArrayList<ProcessThreadDao> processThreadList = new ArrayList<ProcessThreadDao>();
-
+        
         Process p = Runtime.getRuntime().exec(
                 "ps -e -T -o pid,uname,pcpu,pmem,command");
         Scanner input = new Scanner(p.getInputStream());
-
         input.nextLine(); // ps 명령어 초반 PID USER %CPU %MEM COMMAND 부분 무시
+        
         while (input.hasNext()) {
             ProcessThreadDao pTDao = new ProcessThreadDao();
             String command = "";
@@ -80,15 +78,12 @@ public class ProcessThreadMonitor implements Monitor {
                 pTDao.setRamUsage(ram);
                 pTDao.setCommand(comm);
                 pTDao.setThreadNum(count);
-
                 pastPid = pid;
             }
             count += 1;
-
             processThreadList.add(pTDao);
         }
         input.close();
-
         return processThreadList;
     }
 
@@ -131,7 +126,6 @@ public class ProcessThreadMonitor implements Monitor {
 
         for (int i = 0; i < processThreadList.size(); i++) {
             ProcessThreadDao processThread = processThreadList.get(i);
-
             try {
                 out.write(String.format("%d,%s,%f,%f,\"%s\",%d\n",
                         processThread.getPid(), processThread.getUser(),

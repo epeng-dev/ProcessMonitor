@@ -18,9 +18,7 @@ public class MainApplication {
         Sigar sigar = new Sigar();
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd");
-        
         String filename = simpleDateFormat.format(date);
-        
         CpuMonitor cpuMonitor = new CpuMonitor(sigar, filename);
         NetworkMonitor networkMonitor = new NetworkMonitor(sigar, filename);
         MemoryMonitor memoryMonitor = new MemoryMonitor(sigar, filename);
