@@ -11,8 +11,8 @@ import java.util.StringTokenizer;
 import com.crinity.cmbeat.monitor.Monitor;
 
 public class ProcessMonitor implements Monitor {
-    private BufferedWriter out = null;
-    private String filename = null;
+    private BufferedWriter out;
+    private String filename;
 
     // 일반적인 시작, CSV 파일 생성
     public ProcessMonitor(String filename) {
@@ -49,11 +49,9 @@ public class ProcessMonitor implements Monitor {
             }
             command += stringTokenizer.nextToken();// 인자 없는 command와 마지막 인자
             pDao.setCommand(command);
-
             processList.add(pDao);
         }
         input.close();
-
         return processList;
     }
 
@@ -91,7 +89,6 @@ public class ProcessMonitor implements Monitor {
 
         for (int i = 0; i < processList.size(); i++) {
             ProcessDao process = processList.get(i);
-
             try {
                 out.write(String.format("%d,%s,%f,%f,\"%s\"\n",
                         process.getPid(), process.getUser(),

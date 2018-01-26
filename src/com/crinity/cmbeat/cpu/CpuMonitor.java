@@ -12,11 +12,11 @@ import org.hyperic.sigar.SigarException;
 import com.crinity.cmbeat.monitor.Monitor;
 
 public class CpuMonitor implements Monitor {
-    private CpuPerc cpu = null;
-    private CpuPerc[] cpus = null;
+    private CpuPerc cpu;
+    private CpuPerc[] cpus;
     private Sigar sigar;
-    private String filename = null;
-    private BufferedWriter out = null;
+    private String filename;
+    private BufferedWriter out;
 
     public CpuMonitor(Sigar sigar, String filename) {
         this.filename = "./log/cpu/" + filename + ".csv";
@@ -41,7 +41,7 @@ public class CpuMonitor implements Monitor {
 
         try {
             out.write(String.format("0,%f,%f,%f,%f,%f\n", cpu.getCombined(),
-                    cpu.getUser(), cpu.getSys(), cpu.getNice(), cpu.getIdle()));
+                      cpu.getUser(), cpu.getSys(), cpu.getNice(), cpu.getIdle()));
             for (int i = 0; i < cpus.length; i++) {
                 out.write(String.format((i + 1) + ",%f,%f,%f,%f,%f\n",
                         cpus[i].getCombined(), cpus[i].getUser(),

@@ -20,8 +20,8 @@ import com.crinity.cmbeat.monitor.Monitor;
 
 public class MemoryMonitor implements Monitor {
     private Sigar sigar;
-    private BufferedWriter out = null;
-    private String filename = null;
+    private BufferedWriter out;
+    private String filename;
 
     public MemoryMonitor(Sigar sigar, String filename) {
         this.filename = "./log/memory/" + filename + ".csv";
@@ -32,10 +32,8 @@ public class MemoryMonitor implements Monitor {
     private double[] getRamMemory() throws SigarException {
         Mem mem = sigar.getMem();
         double[] mems = new double[2];
-
         mems[0] = mem.getUsedPercent();
         mems[1] = mem.getFreePercent();
-
         return mems;
     }
 

@@ -28,8 +28,8 @@ public class NetworkMonitor implements Monitor {
     private Map<String, Long> txCurrentMap; // 보내는 네트워크 현재 상태를 저장하기 위한 맵
     private Map<String, List<Long>> txChangeMap; // 보내는 네트워크 예전 상태를 저장한 맵
     private Sigar sigar;
-    private BufferedWriter out = null;
-    private String filename = null;
+    private BufferedWriter out;
+    private String filename;
 
     // 주로 사용하는 생성자, CSV를 만들 때 파일 생성이 포함되어있음
     public NetworkMonitor(Sigar sigar, String filename) {
@@ -63,18 +63,18 @@ public class NetworkMonitor implements Monitor {
             NetInterfaceConfig ifConfig = sigar
                     .getNetInterfaceConfig(networkInterface);
 
-            String hwaddr = null; // hardware address를 뜻함 (=MAC address)
+            String macAddr = null; // hardware address를 뜻함 (=MAC address)
 
             if (!NetFlags.NULL_HWADDR.equals(ifConfig.getHwaddr())) {
-                hwaddr = ifConfig.getHwaddr();
+                macAddr = ifConfig.getHwaddr();
             }
 
-            if (hwaddr != null) {
+            if (macAddr != null) {
                 long rxCurrenttmp = netStat.getRxBytes();
-                saveChange(rxCurrentMap, rxChangeMap, hwaddr, rxCurrenttmp,
+                saveChange(rxCurrentMap, rxChangeMap, macAddr, rxCurrenttmp,
                         networkInterface);
                 long txCurrenttmp = netStat.getTxBytes();
-                saveChange(txCurrentMap, txChangeMap, hwaddr, txCurrenttmp,
+                saveChange(txCurrentMap, txChangeMap, macAddr, txCurrenttmp,
                         networkInterface);
             }
         }
@@ -106,14 +106,14 @@ public class NetworkMonitor implements Monitor {
 
     // 네트워크 인터페이스 마다의 변화율을 저장하기 위한 메소드
     private void saveChange(Map<String, Long> currentMap,
-            Map<String, List<Long>> changeMap, String hwaddr, long current,
+            Map<String, List<Long>> changeMap, String macAddr, long current,
             String ni) {
         Long oldCurrent = currentMap.get(ni);
         if (oldCurrent != null) {
-            List<Long> list = changeMap.get(hwaddr);
+            List<Long> list = changeMap.get(macAddr);
             if (list == null) {
                 list = new LinkedList<Long>();
-                changeMap.put(hwaddr, list);
+                changeMap.put(macAddr, list);
             }
             list.add((current - oldCurrent));
         }
