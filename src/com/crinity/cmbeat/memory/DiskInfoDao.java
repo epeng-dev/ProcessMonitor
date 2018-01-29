@@ -27,5 +27,4 @@ public class DiskInfoDao {
     public double getFreePercent() {
         return (double) 1 - usedPercent;
     }
-
 }

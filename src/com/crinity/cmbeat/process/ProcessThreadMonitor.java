@@ -17,6 +17,11 @@ public class ProcessThreadMonitor implements Monitor {
     private BufferedWriter out = null;
     private String filename = null;
 
+    // 테스트용 생성자, 메소드 show()만 가능
+    public ProcessThreadMonitor() {
+
+    }
+
     // 일반적인 시작, CSV 파일 생성
     public ProcessThreadMonitor(String filename) {
 
@@ -41,6 +46,7 @@ public class ProcessThreadMonitor implements Monitor {
                 "ps -e -T -o pid,uname,pcpu,pmem,command");
         Scanner input = new Scanner(p.getInputStream());
 
+        // 파싱 밑 데이터 적재
         input.nextLine(); // ps 명령어 초반 PID USER %CPU %MEM COMMAND 부분 무시
         while (input.hasNext()) {
             ProcessThreadDao pTDao = new ProcessThreadDao();
@@ -120,7 +126,7 @@ public class ProcessThreadMonitor implements Monitor {
     }
 
     @Override
-    public void makeCSV() {
+    public void makeCSV(long time) {
         ArrayList<ProcessThreadDao> processThreadList = null;
         try {
             processThreadList = getProcessThreadInfo();
@@ -133,12 +139,12 @@ public class ProcessThreadMonitor implements Monitor {
             ProcessThreadDao processThread = processThreadList.get(i);
 
             try {
-                out.write(String.format("%d,%s,%f,%f,\"%s\",%d\n",
+                out.write(String.format("%d,%s,%f,%f,\"%s\",%d,%d\n",
                         processThread.getPid(), processThread.getUser(),
                         processThread.getCpuUsage(),
                         processThread.getRamUsage(),
                         processThread.getCommand(),
-                        processThread.getThreadNum()));
+                        processThread.getThreadNum(), time));
             } catch (IOException e) {
                 System.out.println("File IOException!");
                 e.printStackTrace();
@@ -161,7 +167,7 @@ public class ProcessThreadMonitor implements Monitor {
             this.out = new BufferedWriter(new FileWriter(file, true));
 
             if (!isExist) {
-                out.write("PID,USER,CPU,MEM,COMM,THREADNUM\n");
+                out.write("PID,USER,CPU,MEM,COMM,THREADNUM,TIME\n");
             }
         } catch (IOException e) {
             System.out.println("CSV Log File Create or Write Error!");

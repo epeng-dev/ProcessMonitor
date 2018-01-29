@@ -14,6 +14,11 @@ public class ProcessMonitor implements Monitor {
     private BufferedWriter out = null;
     private String filename = null;
 
+    // 테스트용 생성자, 메소드 show()만 가능
+    public ProcessMonitor() {
+
+    }
+
     // 일반적인 시작, CSV 파일 생성
     public ProcessMonitor(String filename) {
         this.filename = "./log/process/" + filename + ".csv";
@@ -80,7 +85,7 @@ public class ProcessMonitor implements Monitor {
     }
 
     @Override
-    public void makeCSV() {
+    public void makeCSV(long time) {
         ArrayList<ProcessDao> processList = null;
         try {
             processList = getProcessInfo();
@@ -93,10 +98,10 @@ public class ProcessMonitor implements Monitor {
             ProcessDao process = processList.get(i);
 
             try {
-                out.write(String.format("%d,%s,%f,%f,\"%s\"\n",
+                out.write(String.format("%d,%s,%f,%f,\"%s\",%d\n",
                         process.getPid(), process.getUser(),
                         process.getCpuUsage(), process.getRamUsage(),
-                        process.getCommand()));
+                        process.getCommand(), time));
             } catch (IOException e) {
                 System.out.println("File IOException!");
                 e.printStackTrace();
@@ -119,7 +124,7 @@ public class ProcessMonitor implements Monitor {
             this.out = new BufferedWriter(new FileWriter(file, true));
 
             if (!isExist) {
-                out.write("PID,USER,CPU,MEM,COMM\n");
+                out.write("PID,USER,CPU,MEM,COMM,TIME\n");
             }
 
         } catch (IOException e) {

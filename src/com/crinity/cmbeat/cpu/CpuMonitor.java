@@ -18,6 +18,12 @@ public class CpuMonitor implements Monitor {
     private String filename = null;
     private BufferedWriter out = null;
 
+    // 테스트용 생성자, 메소드 show()만 가능
+    public CpuMonitor() {
+
+    }
+
+    // 일반적인 시작, CSV 파일 생성
     public CpuMonitor(Sigar sigar, String filename) {
         this.filename = "./log/cpu/" + filename + ".csv";
         this.sigar = sigar;
@@ -36,16 +42,19 @@ public class CpuMonitor implements Monitor {
     }
 
     @Override
-    public void makeCSV() {
+    public void makeCSV(long time) {
         getCpuUsage();
 
         try {
-            out.write(String.format("0,%f,%f,%f,%f,%f\n", cpu.getCombined(),
-                    cpu.getUser(), cpu.getSys(), cpu.getNice(), cpu.getIdle()));
+            out.write(String.format("0,%f,%f,%f,%f,%f,%d\n",
+                    cpu.getCombined() * 100, cpu.getUser() * 100,
+                    cpu.getSys() * 100, cpu.getNice() * 100,
+                    cpu.getIdle() * 100, time));
             for (int i = 0; i < cpus.length; i++) {
-                out.write(String.format((i + 1) + ",%f,%f,%f,%f,%f\n",
-                        cpus[i].getCombined(), cpus[i].getUser(),
-                        cpus[i].getSys(), cpus[i].getNice(), cpus[i].getIdle()));
+                out.write(String.format((i + 1) + ",%f,%f,%f,%f,%f,%d\n",
+                        cpus[i].getCombined() * 100, cpus[i].getUser() * 100,
+                        cpus[i].getSys() * 100, cpus[i].getNice() * 100,
+                        cpus[i].getIdle() * 100, time));
             }
             out.flush();
         } catch (IOException e) {
@@ -93,7 +102,7 @@ public class CpuMonitor implements Monitor {
             this.out = new BufferedWriter(new FileWriter(file, true));
 
             if (!isExist) {
-                out.write("CPUNUM,TOTAL,USER,SYSTEM,NICE,IDLE\n");
+                out.write("CPUNUM,TOTAL,USER,SYSTEM,NICE,IDLE,TIME\n");
             }
         } catch (IOException e) {
             System.out.println("CSV Log File Create or Write Error!");

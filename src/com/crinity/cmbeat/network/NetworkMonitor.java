@@ -31,7 +31,12 @@ public class NetworkMonitor implements Monitor {
     private BufferedWriter out = null;
     private String filename = null;
 
-    // 주로 사용하는 생성자, CSV를 만들 때 파일 생성이 포함되어있음
+    // 테스트용 생성자, 메소드 show()만 가능
+    public NetworkMonitor() {
+
+    }
+
+    // 일반적인 시작, CSV 파일 생성
     public NetworkMonitor(Sigar sigar, String filename) {
         this.sigar = sigar;
         this.filename = "./log/network/" + filename + ".csv";
@@ -143,7 +148,7 @@ public class NetworkMonitor implements Monitor {
     }
 
     @Override
-    public void makeCSV() {
+    public void makeCSV(long time) {
         Long[] m = null;
         try {
             m = getMetric();
@@ -156,7 +161,7 @@ public class NetworkMonitor implements Monitor {
         long totaltx = m[1] / 1024; // KB단위 -> Byte / 1024
 
         try {
-            out.write(totalrx + "," + totaltx + "\n");
+            out.write(totalrx + "," + totaltx + "," + time + "\n");
             out.flush();
         } catch (IOException e) {
             System.out.println("FILE IOException!");
@@ -172,7 +177,7 @@ public class NetworkMonitor implements Monitor {
             this.out = new BufferedWriter(new FileWriter(file, true));
 
             if (!isExist) {
-                out.write("RX,TX\n");
+                out.write("RX,TX,TIME\n");
             }
         } catch (IOException e) {
             System.out.println("CSV Log File CError!");

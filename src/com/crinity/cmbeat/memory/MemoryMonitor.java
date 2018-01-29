@@ -23,6 +23,12 @@ public class MemoryMonitor implements Monitor {
     private BufferedWriter out = null;
     private String filename = null;
 
+    // 테스트용 생성자, 메소드 show()만 가능
+    public MemoryMonitor() {
+
+    }
+
+    // 일반적인 시작, CSV 파일 생성
     public MemoryMonitor(Sigar sigar, String filename) {
         this.filename = "./log/memory/" + filename + ".csv";
         this.sigar = sigar;
@@ -51,7 +57,6 @@ public class MemoryMonitor implements Monitor {
             DiskInfoDao diskInfoDao = new DiskInfoDao();
             diskInfoDao.setFileSystemDir(fsDir);
             diskInfoDao.setUsedPercent(usage.getUsePercent());
-
             fsUsageList.add(diskInfoDao);
         }
 
@@ -91,7 +96,7 @@ public class MemoryMonitor implements Monitor {
     }
 
     @Override
-    public void makeCSV() {
+    public void makeCSV(long time) {
         double[] ramMems; // [0]번에는 사용한 메모리의 백분율(소수) [1]번에는 남은 용량 메모리의 백분율(소수)
         ArrayList<DiskInfoDao> hddMems; // HDD, SDD 안에 들어있는 파일 시스템의 용량
 
@@ -104,12 +109,12 @@ public class MemoryMonitor implements Monitor {
         }
 
         try {
-            out.write("RAM," + ramMems[0] + "," + ramMems[1] + "\n");
+            out.write("RAM," + ramMems[0] + "," + ramMems[1] + "," + time + "\n");
             for (int i = 0; i < hddMems.size(); i++) {
                 DiskInfoDao diskInfo = hddMems.get(i);
                 out.write("\"" + diskInfo.getFileSystemDir() + "\"" + ","
                         + (diskInfo.getUsedPercent() * 100) + ","
-                        + (diskInfo.getFreePercent() * 100) + "\n");
+                        + (diskInfo.getFreePercent() * 100) + "," + time + "\n");
             }
             out.flush();
         } catch (IOException e) {
@@ -126,7 +131,7 @@ public class MemoryMonitor implements Monitor {
             this.out = new BufferedWriter(new FileWriter(file, true));
 
             if (!isExist) {
-                out.write("DISK,USED,FREE\n");
+                out.write("DISK,USED,FREE,TIME\n");
             }
         } catch (IOException e) {
             System.out.println("CSV Log File CError!");
