@@ -1,2 +1,6 @@
 bin/
-log/
+log/cpu/*
+log/memory/*
+log/network/*
+log/process/*
+log/processthread/*
