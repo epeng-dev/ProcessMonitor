@@ -34,7 +34,6 @@ public class ProcessThreadMonitor implements Monitor {
             throws IOException {
         int pastPid = -1;
         int pid = 0;
-        int count = 0;
         float ram = 0.0f;
         String user = null;
         String comm = null;
@@ -43,11 +42,11 @@ public class ProcessThreadMonitor implements Monitor {
         ArrayList<ProcessThreadDao> processThreadList = new ArrayList<ProcessThreadDao>();
 
         Process p = Runtime.getRuntime().exec(
-                "ps -e -T -o pid,uname,pcpu,pmem,command");
+                "ps -e -T -o pid,lwp,pcpu,uname,pmem,command");
         Scanner input = new Scanner(p.getInputStream());
 
         // 파싱 밑 데이터 적재
-        input.nextLine(); // ps 명령어 초반 PID USER %CPU %MEM COMMAND 부분 무시
+        input.nextLine(); // ps 명령어 초반 PID LWP USER %CPU %MEM COMMAND 부분 무시
         while (input.hasNext()) {
             ProcessThreadDao pTDao = new ProcessThreadDao();
             String command = "";
@@ -58,21 +57,19 @@ public class ProcessThreadMonitor implements Monitor {
             pid = Integer.parseInt(stringTokenizer.nextToken());
             pTDao.setPid(pid);
 
+            // lwp는 thread고유 id이다. *lwp는 light weight process의 약자이다.
+            pTDao.setThreadNum(Integer.parseInt(stringTokenizer.nextToken()));
+            pTDao.setCpuUsage(Float.parseFloat(stringTokenizer.nextToken()));
             // pid가 같으면 cpu를 제외한 user, ram점유율, command가 같다.
             if (pid == pastPid) {
                 pTDao.setUser(user);
-                stringTokenizer.nextToken();
-                pTDao.setCpuUsage(Float.parseFloat(stringTokenizer.nextToken()));
                 pTDao.setRamUsage(ram);
                 pTDao.setCommand(comm);
-                pTDao.setThreadNum(count);
+
             } else {
-                count = 0;
-
-                user = stringTokenizer.nextToken();
-                pTDao.setCpuUsage(Float.parseFloat(stringTokenizer.nextToken()));
-                ram = Float.parseFloat(stringTokenizer.nextToken());
-
+                pTDao.setUser(user = stringTokenizer.nextToken());
+                pTDao.setRamUsage(ram = Float.parseFloat(stringTokenizer.nextToken()));
+ 
                 // countTokens가 1보다 많도록 한 이유 : 1로 하지 않으면 마지막에 공백이 남기 때문에 while문
                 // 공백을 처리하기 위해 token을 하나 남겨두고 while문을 통과한 후에 밑에다가 nextToken 하나
                 // 붙여줌
@@ -81,16 +78,10 @@ public class ProcessThreadMonitor implements Monitor {
                 }
                 command += stringTokenizer.nextToken();// 인자 없는 command와 마지막 인자
                 comm = command;
-
-                pTDao.setUser(user);
-                pTDao.setRamUsage(ram);
+                
                 pTDao.setCommand(comm);
-                pTDao.setThreadNum(count);
-
                 pastPid = pid;
             }
-            count += 1;
-
             processThreadList.add(pTDao);
         }
         input.close();
@@ -113,14 +104,14 @@ public class ProcessThreadMonitor implements Monitor {
             ProcessThreadDao processThread = processThreadList.get(i);
 
             System.out
-                    .println(String
-                            .format("PID: %d    User: %s    CPU: %f    RAM: %f    Command: %s   ThreadNum: %d",
-                                    processThread.getPid(),
-                                    processThread.getUser(),
-                                    processThread.getCpuUsage(),
-                                    processThread.getRamUsage(),
-                                    processThread.getCommand(),
-                                    processThread.getThreadNum()));
+            .println(String
+                    .format("PID: %d    User: %s    CPU: %f    RAM: %f    Command: %s   ThreadNum: %d",
+                            processThread.getPid(),
+                            processThread.getUser(),
+                            processThread.getCpuUsage(),
+                            processThread.getRamUsage(),
+                            processThread.getCommand(),
+                            processThread.getThreadNum()));
         }
         System.out.println("------------------------------------------");
     }
