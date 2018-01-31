@@ -28,7 +28,7 @@ public class ProcessMonitor implements Monitor {
     private ArrayList<ProcessDao> getProcessInfo() throws IOException {
         String line;
         ArrayList<ProcessDao> processList = new ArrayList<ProcessDao>();
-
+        String command;
         Process p = Runtime.getRuntime().exec(
                 "ps -e -o pid,uname,pcpu,pmem,command");
         Scanner input = new Scanner(p.getInputStream());
@@ -36,7 +36,7 @@ public class ProcessMonitor implements Monitor {
         input.nextLine(); // ps 명령어 초반 PID USER %CPU %MEM COMMAND 부분 무시
         while (input.hasNext()) {
             ProcessDao pDao = new ProcessDao();
-            String command = "";
+            command = "";
 
             line = input.nextLine();
             StringTokenizer stringTokenizer = new StringTokenizer(line);

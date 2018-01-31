@@ -49,7 +49,6 @@ public class ProcessThreadMonitor implements Monitor {
         input.nextLine(); // ps 명령어 초반 PID LWP USER %CPU %MEM COMMAND 부분 무시
         while (input.hasNext()) {
             ProcessThreadDao pTDao = new ProcessThreadDao();
-            String command = "";
 
             line = input.nextLine();
             StringTokenizer stringTokenizer = new StringTokenizer(line);
@@ -65,8 +64,8 @@ public class ProcessThreadMonitor implements Monitor {
                 pTDao.setUser(user);
                 pTDao.setRamUsage(ram);
                 pTDao.setCommand(comm);
-
             } else {
+                comm = "";
                 pTDao.setUser(user = stringTokenizer.nextToken());
                 pTDao.setRamUsage(ram = Float.parseFloat(stringTokenizer.nextToken()));
  
@@ -74,10 +73,9 @@ public class ProcessThreadMonitor implements Monitor {
                 // 공백을 처리하기 위해 token을 하나 남겨두고 while문을 통과한 후에 밑에다가 nextToken 하나
                 // 붙여줌
                 while (stringTokenizer.countTokens() > 1) {
-                    command += stringTokenizer.nextToken() + " ";
+                    comm += stringTokenizer.nextToken() + " ";
                 }
-                command += stringTokenizer.nextToken();// 인자 없는 command와 마지막 인자
-                comm = command;
+                comm += stringTokenizer.nextToken();// 인자 없는 command와 마지막 인자
                 
                 pTDao.setCommand(comm);
                 pastPid = pid;
